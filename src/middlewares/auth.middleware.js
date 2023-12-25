@@ -24,7 +24,6 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
 
 const roleCheck = (role) => {
 	return (req, res, next) => {
-		console.log(req.user.roles.includes(role));
 		if (!req.user.roles.includes(role)) {
 			return res
 				.status(403)

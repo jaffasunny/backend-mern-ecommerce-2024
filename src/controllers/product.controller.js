@@ -20,7 +20,7 @@ const createSingleProduct = asyncHandler(async (req, res) => {
 	const { productName, price, quantity } = req.body;
 
 	// extracting seller id from authentication middleware
-	const { _id: id } = req.user;
+	const { _id: sellerId } = req.user;
 
 	const products = await Product.find({ productName });
 
@@ -30,7 +30,7 @@ const createSingleProduct = asyncHandler(async (req, res) => {
 
 	const product = await Product.create({
 		productName,
-		sellerId: id,
+		sellerId,
 		price,
 		quantity,
 	});
