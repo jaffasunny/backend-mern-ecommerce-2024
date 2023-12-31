@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
 	loginUser,
+	logoutUser,
 	registerUser,
 	userProfile,
 } from "./../controllers/user.controller.js";
@@ -11,6 +12,9 @@ const router = Router();
 // auth
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
+
+// secured routes
+router.route("/logout").post(authMiddleware, logoutUser);
 
 // profile
 router.get("/profile", authMiddleware, roleCheck("seller"), userProfile);

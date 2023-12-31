@@ -2,8 +2,24 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+
+const generateAccessAndRefreshTokens = async (userId) => {
+	try {
+		const user = await User.findById(userId);
+		const accessToken = await user.generateAccessToken();
+		const refreshToken = await user.generateRefreshToken();
+
+		user.refreshToken = refreshToken;
+		await user.save({ validateBeforeSave: false });
+
+		return { accessToken, refreshToken };
+	} catch (error) {
+		throw new ApiError(
+			500,
+			"Something went wrong while generating refresh and access token!"
+		);
+	}
+};
 
 const registerUser = asyncHandler(async (req, res) => {
 	const {
@@ -46,7 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
 		roles,
 	});
 
-	const createdUser = await User.findById(user._id).select("-password");
+	const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
 	if (!createdUser) {
 		throw new ApiError(500, "Something went wrong while registering the user!");
@@ -67,20 +83,66 @@ const loginUser = asyncHandler(async (req, res) => {
 	const user = await User.findOne({ $or: [{ username }, { email }] });
 
 	// compare password with hashed password
-	const matched = await bcrypt.compare(password, user.password);
+	// const matched = await bcrypt.compare(password, user.password);
+	const matched = await user.isPasswordCorrect(password);
 
-	if (!user || !matched) {
-		throw new ApiError(401, `Login Failed!`);
+	if (!user) {
+		throw new ApiError(401, `User doesnot exist!`);
 	}
 
-	const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
+	if (!matched) {
+		throw new ApiError(401, `Invalid user credentials!`);
+	}
 
-	// remvoe password from response
+	// const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY);
+
+	const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+		user._id
+	);
+
+	// remove password from response
 	delete user._doc.password;
+	delete user._doc.refreshToken;
+
+	const options = {
+		httpOnly: true,
+		secure: true,
+	};
 
 	return res
 		.status(200)
-		.json(new ApiResponse(200, { user, token }, "Login Successful!"));
+		.cookie("accessToken", accessToken, options)
+		.cookie("refreshToken", refreshToken, options)
+		.json(
+			new ApiResponse(
+				200,
+				{ user, accessToken, refreshToken },
+				"Login Successful!"
+			)
+		);
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+	await User.findByIdAndUpdate(
+		req.user._id,
+		{
+			$set: { refreshToken: undefined },
+		},
+		{
+			new: true,
+		}
+	);
+
+	const options = {
+		httpOnly: true,
+		secure: true,
+	};
+
+	return res
+		.status(200)
+		.clearCookie("accessToken", options)
+		.cookie("refreshToken", options)
+		.json(new ApiResponse(200, {}, "User logged out successfully!"));
 });
 
 const userProfile = asyncHandler(async (req, res) => {
@@ -97,4 +159,4 @@ const userProfile = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, user, "User profile fetched successfully!"));
 });
 
-export { registerUser, loginUser, userProfile };
+export { registerUser, loginUser, logoutUser, userProfile };
