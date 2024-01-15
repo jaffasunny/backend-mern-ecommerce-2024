@@ -27,6 +27,7 @@ app.use(cookieParser());
 import userRouter from "./routes/user.route.js";
 import productRouter from "./routes/product.route.js";
 import cartRouter from "./routes/cart.route.js";
+import orderRouter from "./routes/order.route.js";
 
 // routes declaration
 app.get("/", (req, res) => {
@@ -43,7 +44,11 @@ app.use("/api/v1/users", userRouter);
 // products routes
 app.use("/api/v1/products", productRouter);
 
+// cart routes
 app.use("/api/v1/carts", cartRouter);
+
+// order routes
+app.use("/api/v1/orders", orderRouter);
 
 // http://localhost:8000/api/v1/users/register
 
