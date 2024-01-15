@@ -27,8 +27,10 @@ app.use(cookieParser());
 import userRouter from "./routes/user.route.js";
 import productRouter from "./routes/product.route.js";
 import cartRouter from "./routes/cart.route.js";
+import intialRouter from "./routes/inital.route.js";
 
 // routes declaration
+app.use('/', intialRouter)
 
 // auth routes
 app.use("/api/v1/users", userRouter);
