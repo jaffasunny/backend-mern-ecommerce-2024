@@ -27,10 +27,15 @@ app.use(cookieParser());
 import userRouter from "./routes/user.route.js";
 import productRouter from "./routes/product.route.js";
 import cartRouter from "./routes/cart.route.js";
-import intialRouter from "./routes/inital.route.js";
 
 // routes declaration
-app.use('/', intialRouter)
+app.get("/", (req, res) => {
+	return res
+		.status(200)
+		.send(
+			"<h1>Welcome to intial route for Backend Mern Ecommerce 2024....</h1>"
+		);
+});
 
 // auth routes
 app.use("/api/v1/users", userRouter);
