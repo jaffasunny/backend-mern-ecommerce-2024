@@ -2,7 +2,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Stripe from "stripe";
 
-console.log({ keys: process.env.STRIPE_SECRET_KEY });
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const checkout = asyncHandler(async (req, res) => {

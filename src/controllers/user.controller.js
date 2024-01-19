@@ -62,7 +62,9 @@ const registerUser = asyncHandler(async (req, res) => {
 		roles,
 	});
 
-	const createdUser = await User.findById(user._id).select("-password -refreshToken");
+	const createdUser = await User.findById(user._id).select(
+		"-password -refreshToken"
+	);
 
 	if (!createdUser) {
 		throw new ApiError(500, "Something went wrong while registering the user!");
@@ -75,6 +77,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
 	const { username, email, password } = req.body;
+
+	console.log({ username, email, password });
 
 	if ((!username && !email) || !password) {
 		throw new ApiError(400, "Please fill all details!");
