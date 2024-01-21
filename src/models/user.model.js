@@ -35,35 +35,51 @@ const userSchema = new Schema(
 		address: {
 			country: {
 				type: String,
-				required: [true, "Country is required!"],
+				// required: [true, "Country is required!"],
 				trim: true,
 			},
 			street: {
 				type: String,
-				required: [true, "Street is required!"],
+				// required: [true, "Street is required!"],
 				trim: true,
 			},
-			city: { type: String, required: [true, "City is required!"], trim: true },
+			city: {
+				type: String,
+				//  required: [true, "City is required!"],
+				trim: true,
+			},
 			state: {
 				type: String,
-				required: [true, "State is required!"],
+				// required: [true, "State is required!"],
 				trim: true,
 			},
-			zip: { type: String, required: [true, "Zip is required!"], trim: true },
+			zip: {
+				type: String,
+				//  required: [true, "Zip is required!"],
+				trim: true,
+			},
 		},
 		shippingAddress: {
 			street: {
 				type: String,
-				required: [true, "Street is required!"],
+				// required: [true, "Street is required!"],
 				trim: true,
 			},
-			city: { type: String, required: [true, "City is required!"], trim: true },
+			city: {
+				type: String,
+				// required: [true, "City is required!"],
+				trim: true,
+			},
 			state: {
 				type: String,
-				required: [true, "State is required!"],
+				// required: [true, "State is required!"],
 				trim: true,
 			},
-			zip: { type: String, required: [true, "Zip is required!"], trim: true },
+			zip: {
+				type: String,
+				// required: [true, "Zip is required!"],
+				trim: true,
+			},
 		},
 		roles: {
 			type: [
@@ -73,6 +89,10 @@ const userSchema = new Schema(
 				},
 			],
 			default: ["customer"],
+		},
+		isProfileComplete: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	{

@@ -22,26 +22,9 @@ const generateAccessAndRefreshTokens = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-	const {
-		firstName,
-		lastName,
-		username,
-		email,
-		password,
-		address,
-		shippingAddress,
-		roles,
-	} = req.body;
+	const { firstName, lastName, username, email, password, roles } = req.body;
 
-	if (
-		!firstName ||
-		!lastName ||
-		!username ||
-		!email ||
-		!password ||
-		!address ||
-		!shippingAddress
-	) {
+	if (!firstName || !lastName || !username || !email || !password) {
 		throw new ApiError(400, "Please fill all details!");
 	}
 
@@ -57,8 +40,6 @@ const registerUser = asyncHandler(async (req, res) => {
 		username: username.toLowerCase(),
 		email,
 		password,
-		address,
-		shippingAddress,
 		roles,
 	});
 
@@ -76,15 +57,15 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-	const { username, email, password } = req.body;
+	const { emailOrUsername, password } = req.body;
 
-	console.log({ username, email, password });
-
-	if ((!username && !email) || !password) {
+	if (!emailOrUsername || !password) {
 		throw new ApiError(400, "Please fill all details!");
 	}
 
-	const user = await User.findOne({ $or: [{ username }, { email }] });
+	const user = await User.findOne({
+		$or: [{ username: emailOrUsername }, { email: emailOrUsername }],
+	});
 
 	// compare password with hashed password
 	// const matched = await bcrypt.compare(password, user.password);
