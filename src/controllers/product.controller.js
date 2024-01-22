@@ -17,7 +17,8 @@ const getAllProducts = asyncHandler(async (req, res) => {
 });
 
 const createSingleProduct = asyncHandler(async (req, res) => {
-	const { productName, price, quantity } = req.body;
+	const { productName, price, quantity, category, description, image, rating } =
+		req.body;
 
 	// extracting seller id from authentication middleware
 	const { _id: sellerId } = req.user;
@@ -33,6 +34,10 @@ const createSingleProduct = asyncHandler(async (req, res) => {
 		sellerId,
 		price,
 		quantity,
+		category,
+		description,
+		image,
+		rating,
 	});
 
 	const createdProduct = await Product.findById(product._id);
@@ -49,7 +54,16 @@ const createSingleProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
-	const { productName, sellerId, price, quantity } = req.body;
+	const {
+		productName,
+		sellerId,
+		price,
+		quantity,
+		category,
+		description,
+		image,
+		rating,
+	} = req.body;
 	const { id } = req.params;
 
 	const products = await Product.findById(id);
@@ -65,6 +79,10 @@ const updateProduct = asyncHandler(async (req, res) => {
 			sellerId,
 			price,
 			quantity,
+			category,
+			description,
+			image,
+			rating,
 		},
 		{ new: true, runValidators: true }
 	);
@@ -81,7 +99,16 @@ const updateProduct = asyncHandler(async (req, res) => {
 });
 
 const removeProduct = asyncHandler(async (req, res) => {
-	const { productName, sellerId, price, quantity } = req.body;
+	const {
+		productName,
+		sellerId,
+		price,
+		quantity,
+		category,
+		description,
+		image,
+		rating,
+	} = req.body;
 	const { id } = req.params;
 
 	const products = await Product.findById(id);
@@ -97,6 +124,10 @@ const removeProduct = asyncHandler(async (req, res) => {
 			sellerId,
 			price,
 			quantity,
+			category,
+			description,
+			image,
+			rating,
 		},
 		{ runValidators: true }
 	);
