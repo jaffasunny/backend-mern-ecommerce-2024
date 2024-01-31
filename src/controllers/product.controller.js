@@ -16,6 +16,20 @@ const getAllProducts = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, products, "Products successfully fetched!"));
 });
 
+const getSingleProduct = asyncHandler(async (req, res) => {
+	const { id } = req.params;
+
+	const product = await Product.findById(id).populate("sellerId");
+
+	if (!product) {
+		throw new ApiError(404, "No such product available!");
+	}
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, product, "Products successfully fetched!"));
+});
+
 const createSingleProduct = asyncHandler(async (req, res) => {
 	const { productName, price, quantity, category, description, image, rating } =
 		req.body;
@@ -143,4 +157,10 @@ const removeProduct = asyncHandler(async (req, res) => {
 		);
 });
 
-export { getAllProducts, createSingleProduct, updateProduct, removeProduct };
+export {
+	getAllProducts,
+	createSingleProduct,
+	updateProduct,
+	removeProduct,
+	getSingleProduct,
+};

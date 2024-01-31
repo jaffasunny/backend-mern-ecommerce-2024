@@ -4,6 +4,7 @@ import {
 	getAllProducts,
 	removeProduct,
 	updateProduct,
+	getSingleProduct,
 } from "../controllers/product.controller.js";
 import { authMiddleware, roleCheck } from "../middlewares/auth.middleware.js";
 
@@ -16,6 +17,7 @@ router
 
 router
 	.route("/:id")
+	.get(authMiddleware, getSingleProduct)
 	.patch(authMiddleware, roleCheck("seller"), updateProduct)
 	.delete(authMiddleware, roleCheck("seller"), removeProduct);
 
