@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
 	loginUser,
 	logoutUser,
+	refreshAccessToken,
 	registerUser,
 	userProfile,
 } from "./../controllers/user.controller.js";
@@ -15,6 +16,7 @@ router.route("/login").post(loginUser);
 
 // secured routes
 router.route("/logout").post(authMiddleware, logoutUser);
+router.route("/refreshToken").post(refreshAccessToken);
 
 // profile
 router.get("/profile", authMiddleware, roleCheck("seller"), userProfile);
