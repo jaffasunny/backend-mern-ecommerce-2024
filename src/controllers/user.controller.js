@@ -2,7 +2,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
-import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshTokens = async (userId) => {
 	try {
@@ -86,9 +85,12 @@ const loginUser = asyncHandler(async (req, res) => {
 		user._id
 	);
 
+	user.refreshTokens.push({ token: refreshToken });
+
 	// remove password from response
 	delete user._doc.password;
-	delete user._doc.refreshToken;
+
+	await user.save({ validateBeforeSave: false });
 
 	const options = {
 		httpOnly: true,
@@ -154,28 +156,33 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 	}
 
 	try {
-		const decodedToken = jwt.verify(
-			incomingRefreshToken,
-			process.env.REFRESH_TOKEN_SECRET
+		const user = await User.findById(req.user._id);
+
+		// 3. Find the specific refresh token in the user's collection:
+		const matchingRefreshToken = user.refreshTokens.find(
+			(token) => token.token === incomingRefreshToken
 		);
-
-		const user = await User.findById(decodedToken?._id);
-
-		if (!user) {
+		if (!matchingRefreshToken) {
 			throw new ApiError(401, "Invalid Refresh Token!");
 		}
 
-		if (incomingRefreshToken !== user?.refreshToken) {
-			throw new ApiError(401, "Refresh token is expired or is being used!");
-		}
+		// 4. Revoke the used refresh token (optional for enhanced security):
+		user.refreshTokens = user.refreshTokens.filter(
+			(token) => token.token !== incomingRefreshToken
+		);
 
 		const options = {
 			httpOnly: true,
 			secure: true,
 		};
 
-		const { accessToken, newRefreshToken } =
+		const { accessToken, refreshToken: newRefreshToken } =
 			await generateAccessAndRefreshTokens(user._id);
+
+		// 6. Add new refresh token to the user's collection:
+		user.refreshTokens.push({ token: newRefreshToken });
+
+		await user.save({ validateBeforeSave: false });
 
 		return res
 			.status(200)

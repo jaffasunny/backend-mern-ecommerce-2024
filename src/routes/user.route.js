@@ -6,7 +6,11 @@ import {
 	registerUser,
 	userProfile,
 } from "./../controllers/user.controller.js";
-import { authMiddleware, roleCheck } from "../middlewares/auth.middleware.js";
+import {
+	authMiddleware,
+	roleCheck,
+	verifyRefreshToken,
+} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -16,7 +20,7 @@ router.route("/login").post(loginUser);
 
 // secured routes
 router.route("/logout").post(authMiddleware, logoutUser);
-router.route("/refreshToken").post(refreshAccessToken);
+router.route("/refreshToken").post(verifyRefreshToken, refreshAccessToken);
 
 // profile
 router.get("/profile", authMiddleware, roleCheck("seller"), userProfile);
