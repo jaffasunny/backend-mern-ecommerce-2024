@@ -162,6 +162,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 		const matchingRefreshToken = user.refreshTokens.find(
 			(token) => token.token === incomingRefreshToken
 		);
+
 		if (!matchingRefreshToken) {
 			throw new ApiError(401, "Invalid Refresh Token!");
 		}
