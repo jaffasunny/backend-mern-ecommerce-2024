@@ -79,7 +79,6 @@ const removeItemFromCart = asyncHandler(async (req, res) => {
 	const itemIndex = cart.items.findIndex(
 		(i) => i.product._id.toString() === productId
 	);
-
 	if (itemIndex < 0) {
 		throw new ApiError(404, "Product is not in your cart!");
 	}
@@ -90,14 +89,15 @@ const removeItemFromCart = asyncHandler(async (req, res) => {
 
 	if (cart.items[itemIndex].quantity > 1) {
 		cart.items[itemIndex].quantity -= 1;
+		cart.totalPrice -= cart.items[itemIndex].product.price;
 	} else {
+		cart.totalPrice -= cart.items[itemIndex].product.price;
 		cart.items = cart.items.filter(
 			(item) => item._id !== cart.items[itemIndex]._id
 		);
 	}
 
-	// also don't forget to subtract the totalPrice from price of item removed from cart
-	cart.totalPrice -= cart.items[itemIndex].product.price;
+	cart.totalPrice = parseFloat(cart.totalPrice.toFixed(2)); // rounding off to two
 
 	// save the cart now
 	await cart.save();
