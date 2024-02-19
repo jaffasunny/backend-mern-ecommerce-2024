@@ -18,7 +18,7 @@ export const calculateTotalPrice = async (items) => {
 			}
 		}
 
-		return totalPrice;
+		return totalPrice.toFixed(2);
 	} catch (error) {
 		console.log({ error });
 	}
