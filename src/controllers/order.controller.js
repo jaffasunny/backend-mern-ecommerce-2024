@@ -13,8 +13,6 @@ const getOrders = asyncHandler(async (req, res) => {
 		throw new ApiError(404, "You don't have any orders!");
 	}
 
-	console.log({ order });
-
 	return res
 		.status(200)
 		.json(new ApiResponse(200, order, "Order successfully fetched!"));

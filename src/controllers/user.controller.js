@@ -159,6 +159,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 		const user = await User.findById(req.user._id);
 
 		// 3. Find the specific refresh token in the user's collection:
+
 		const matchingRefreshToken = user.refreshTokens.find(
 			(token) => token.token === incomingRefreshToken
 		);

@@ -23,8 +23,6 @@ const getCart = asyncHandler(async (req, res) => {
 const addToCart = asyncHandler(async (req, res) => {
 	const { _id: userId } = req.user;
 	const { product: productId, quantity } = req.body;
-	console.log("🚀 ~ addToCart ~ quantity:", quantity);
-	console.log("🚀 ~ addToCart ~ productId:", productId);
 
 	let cart = await Cart.findOne({ user: userId });
 	let product_item = await Product.findById(productId);
