@@ -4,6 +4,8 @@ import {
 	logoutUser,
 	refreshAccessToken,
 	registerUser,
+	resetPassword,
+	sendResetPasswordToken,
 	userProfile,
 } from "./../controllers/user.controller.js";
 import {
@@ -17,6 +19,10 @@ const router = Router();
 // auth
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
+
+// reset password
+router.post("/reset-password", sendResetPasswordToken); // get reset password token
+router.post("/reset-password/:userId/:token", resetPassword); // reset password
 
 // secured routes
 router.route("/logout").post(authMiddleware, logoutUser);

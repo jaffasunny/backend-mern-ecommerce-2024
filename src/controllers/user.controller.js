@@ -2,7 +2,11 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
+import { ResetPasswordToken } from "../models/resetPasswordToken.model.js";
+import sendEmail from "../utils/sendMail.js";
+import crypto from "crypto";
 
+// Generate New Refresh Token and Access Token
 const generateAccessAndRefreshTokens = async (userId) => {
 	try {
 		const user = await User.findById(userId);
@@ -21,6 +25,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 	}
 };
 
+// Signup
 const registerUser = asyncHandler(async (req, res) => {
 	const { firstName, lastName, username, email, password, roles } = req.body;
 
@@ -56,6 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, createdUser, "User registered Successfully!"));
 });
 
+// Login
 const loginUser = asyncHandler(async (req, res) => {
 	const { emailOrUsername, password } = req.body;
 
@@ -110,6 +116,7 @@ const loginUser = asyncHandler(async (req, res) => {
 		);
 });
 
+// Logout
 const logoutUser = asyncHandler(async (req, res) => {
 	await User.findByIdAndUpdate(
 		req.user._id,
@@ -133,6 +140,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, {}, "User logged out successfully!"));
 });
 
+// User Profile
 const userProfile = asyncHandler(async (req, res) => {
 	const { username } = req.user;
 
@@ -147,6 +155,7 @@ const userProfile = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, user, "User profile fetched successfully!"));
 });
 
+// Refresh Access Token if access token expires
 const refreshAccessToken = asyncHandler(async (req, res) => {
 	const incomingRefreshToken =
 		req.cookies.refreshToken || req.body.refreshToken;
@@ -202,4 +211,76 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 	}
 });
 
-export { registerUser, loginUser, logoutUser, userProfile, refreshAccessToken };
+const sendResetPasswordToken = asyncHandler(async (req, res) => {
+	const { email } = req.body;
+
+	const user = await User.findOne({ email });
+	if (!user) {
+		throw new ApiError(400, "User with given email address doesnot exist!");
+	}
+
+	let token = await ResetPasswordToken.findOne({ userId: user._id });
+
+	if (!token) {
+		token = await new ResetPasswordToken({
+			userId: user._id,
+			token: crypto.randomBytes(32).toString("hex"),
+		}).save();
+	}
+
+	const link = `${process.env.BASE_URL}/reset-password/${user._id}/${token.token}`;
+	await sendEmail(user.email, "Password reset", link);
+
+	return res
+		.status(200)
+		.json(
+			new ApiResponse(200, "Reset password link sent to your email address!")
+		);
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+	const { userId, token: enteredToken } = req.params;
+	const { password } = req.body;
+
+	const user = await User.findById(userId);
+
+	if (!user) {
+		throw new ApiError(
+			400,
+			"Invalid Link or maybe your link has been expired!"
+		);
+	}
+
+	let resetPasswordToken = await ResetPasswordToken.findOne({
+		userId: user._id,
+		token: enteredToken,
+	});
+	console.log({ resetPasswordToken });
+
+	if (!resetPasswordToken) {
+		throw new ApiError(
+			400,
+			"Invalid Link or maybe your link has been expired!"
+		);
+	}
+
+	user.password = password;
+	await user.save();
+	await ResetPasswordToken.findOneAndDelete({
+		token: enteredToken,
+	});
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, "Password Reset Successfully!"));
+});
+
+export {
+	registerUser,
+	loginUser,
+	logoutUser,
+	userProfile,
+	refreshAccessToken,
+	sendResetPasswordToken,
+	resetPassword,
+};
