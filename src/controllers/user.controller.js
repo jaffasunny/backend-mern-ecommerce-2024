@@ -255,7 +255,6 @@ const resetPassword = asyncHandler(async (req, res) => {
 		userId: user._id,
 		token: enteredToken,
 	});
-	console.log({ resetPasswordToken });
 
 	if (!resetPasswordToken) {
 		throw new ApiError(

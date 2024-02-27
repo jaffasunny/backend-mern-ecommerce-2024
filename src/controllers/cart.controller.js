@@ -28,7 +28,6 @@ const addToCart = asyncHandler(async (req, res) => {
 	let product_item = await Product.findById(productId);
 
 	if (product_item.quantity > quantity) {
-		console.log("add to cart called");
 		if (!cart) {
 			// Create a new empty cart if the user has no existing one yet
 
