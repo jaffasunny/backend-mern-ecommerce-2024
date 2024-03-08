@@ -30,6 +30,8 @@ import cartRouter from "./routes/cart.route.js";
 import orderRouter from "./routes/order.route.js";
 import checkoutRouter from "./routes/checkout.route.js";
 
+// testing
+
 // routes declaration
 app.get("/", (req, res) => {
 	return res
