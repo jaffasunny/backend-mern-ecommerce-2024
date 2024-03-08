@@ -7,7 +7,15 @@ import { Order } from "../models/order.model.js";
 const getOrders = asyncHandler(async (req, res) => {
 	const { _id: userId } = req.user;
 
-	const order = await Order.find({ user: userId }).populate("cart");
+	const order = await Order.find({ user: userId })
+		.populate("cart user")
+		.populate({
+			path: "cart",
+			populate: {
+				path: "items.product",
+				model: "Product",
+			},
+		});
 
 	if (!order) {
 		throw new ApiError(404, "You don't have any orders!");
@@ -20,7 +28,7 @@ const getOrders = asyncHandler(async (req, res) => {
 
 const createOrder = asyncHandler(async (req, res) => {
 	const { _id: userId } = req.user;
-	const { cart, status } = req.body;
+	const { cart } = req.body;
 
 	let _cart = await Cart.findOne({ user: userId, _id: cart });
 
@@ -30,7 +38,6 @@ const createOrder = asyncHandler(async (req, res) => {
 
 	let order = new Order({
 		cart,
-		status,
 		user: userId,
 	});
 
@@ -41,4 +48,30 @@ const createOrder = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, order, "Order created successfully!"));
 });
 
-export { getOrders, createOrder };
+const changeOrderStatus = asyncHandler(async (req, res) => {
+	const { orderId, status } = req.body;
+
+	let order = await Order.findByIdAndUpdate(orderId, {
+		status,
+	});
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, order, "Order status updated successfully!"));
+});
+
+const clearPendingOrder = asyncHandler(async (req, res) => {
+	const { _id: userId } = req.user;
+	console.log("🚀 ~ clearPendingOrder ~ userId:", userId);
+
+	let order = await Order.deleteMany({
+		user: userId,
+		status: "pending",
+	});
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, order, "Cleared pending orders successfully!"));
+});
+
+export { getOrders, createOrder, changeOrderStatus, clearPendingOrder };

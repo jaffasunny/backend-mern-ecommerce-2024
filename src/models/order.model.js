@@ -8,13 +8,9 @@ const orderSchema = new Schema(
 			required: [true, "Cart is required!"],
 		},
 		status: {
-			type: [
-				{
-					type: String,
-					enum: ["pending", "shipped", "delivered"],
-					default: "pending",
-				},
-			],
+			type: String,
+			enum: ["pending", "payed", "shipped", "delivered"],
+			default: "pending", // Define the default directly on the 'status' field
 		},
 		user: {
 			type: Schema.Types.ObjectId,

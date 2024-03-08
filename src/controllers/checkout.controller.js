@@ -5,24 +5,24 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const checkout = asyncHandler(async (req, res) => {
-	const { product } = req.body;
+	const { product, orderId } = req.body;
+	console.log("🚀 ~ checkout ~ req.body:", req.body);
+	console.log("🚀 ~ checkout ~ product, orderId:", product, orderId);
 
 	const session = await stripe.checkout.sessions.create({
 		payment_method_types: ["card"],
-		line_items: [
-			{
-				price_data: {
-					currency: "usd",
-					product_data: {
-						name: product.name,
-					},
-					unit_amount: product.price * 100,
+		line_items: product.items.map(({ product, quantity, _id }) => ({
+			price_data: {
+				currency: "usd",
+				product_data: {
+					name: product.productName,
 				},
-				quantity: product.quantity,
+				unit_amount: product.price * 100,
 			},
-		],
+			quantity: quantity,
+		})),
 		mode: "payment",
-		success_url: "http://localhost:3000/success",
+		success_url: `http://localhost:3000/success?orderId=${orderId}`,
 		cancel_url: "http://localhost:3000/cancel",
 	});
 

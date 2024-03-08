@@ -109,6 +109,22 @@ const removeItemFromCart = asyncHandler(async (req, res) => {
 		);
 });
 
+const clearCart = asyncHandler(async (req, res) => {
+	const { _id: userId } = req.user;
+
+	let cart = await Cart.findOneAndDelete({ user: userId });
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, cart, "Cart cleared successfully!"));
+});
+
 const completlyRemoveItem = asyncHandler(async (req, res) => {});
 
-export { getCart, addToCart, removeItemFromCart, completlyRemoveItem };
+export {
+	getCart,
+	addToCart,
+	removeItemFromCart,
+	completlyRemoveItem,
+	clearCart,
+};
