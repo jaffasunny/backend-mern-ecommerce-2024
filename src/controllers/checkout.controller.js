@@ -6,8 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const checkout = asyncHandler(async (req, res) => {
 	const { product, orderId } = req.body;
-	console.log("🚀 ~ checkout ~ req.body:", req.body);
-	console.log("🚀 ~ checkout ~ product, orderId:", product, orderId);
 
 	const session = await stripe.checkout.sessions.create({
 		payment_method_types: ["card"],
