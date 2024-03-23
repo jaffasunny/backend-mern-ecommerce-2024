@@ -62,7 +62,6 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
 
 const clearPendingOrder = asyncHandler(async (req, res) => {
 	const { _id: userId } = req.user;
-	console.log("🚀 ~ clearPendingOrder ~ userId:", userId);
 
 	let order = await Order.deleteMany({
 		user: userId,

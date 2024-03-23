@@ -119,7 +119,29 @@ const clearCart = asyncHandler(async (req, res) => {
 		.json(new ApiResponse(200, cart, "Cart cleared successfully!"));
 });
 
-const completlyRemoveItem = asyncHandler(async (req, res) => {});
+const completlyRemoveItem = asyncHandler(async (req, res) => {
+	const { id, itemId } = req.params;
+
+	const updatedCart = await Cart.findByIdAndUpdate(
+		id, // Cart ID
+		{ $pull: { items: { _id: itemId } } }, // Update to remove item with specific _id
+		{ new: true } // Return the updated cart
+	);
+
+	if (!updatedCart) {
+		return res
+			.status(404)
+			.json(new ApiResponse(404, updatedCart, "Cart not found!"));
+	}
+
+	if (!updatedCart.items.length) {
+		await Cart.findByIdAndDelete(id);
+	}
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, updatedCart, "Cart Item deleted successfully!"));
+});
 
 export {
 	getCart,
