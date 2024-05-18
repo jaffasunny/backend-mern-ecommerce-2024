@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 	return res
 		.status(200)
 		.send(
-			"<h1>Welcome to intial route for Backend Mern Ecommerce 2024.... testing automation</h1>"
+			"<h1>Testing cicd: Welcome to intial route for Backend Mern Ecommerce 2024.... testing automation</h1>"
 		);
 });
 

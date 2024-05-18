@@ -90,6 +90,18 @@ const userSchema = new Schema(
 			],
 			default: ["customer"],
 		},
+		phone: {
+			type: String,
+			default: "",
+		},
+		gender: {
+			type: String,
+			default: "male",
+		},
+		bio: {
+			type: String,
+			default: "",
+		},
 		isProfileComplete: {
 			type: Boolean,
 			default: false,
